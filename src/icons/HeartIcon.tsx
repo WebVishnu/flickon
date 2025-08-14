@@ -35,6 +35,7 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
   const [isPopping, setIsPopping] = useState(false);
   const [sprinklesVisible, setSprinklesVisible] = useState(false);
   const [sprinkleBurstId, setSprinkleBurstId] = useState(0);
+  const [glowVisible, setGlowVisible] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const fillPathRef = useRef<SVGPathElement>(null);
 
@@ -45,6 +46,8 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
     color: string;
     delay: number;
     r: number;
+    scale: number;
+    rotation: number;
   };
   const [sprinkles, setSprinkles] = useState<Sprinkle[]>([]);
 
@@ -55,12 +58,14 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
 
   // Handle click with fill animation
   const triggerSprinkleBurst = useCallback(() => {
-    const sprinkleCount = Math.max(10, Math.min(22, Math.round(size * 0.7)));
+    const sprinkleCount = Math.max(15, Math.min(28, Math.round(size * 0.8)));
     const next = generateSprinklesForSize(size, sprinkleCount);
     setSprinkles(next);
     setSprinklesVisible(true);
     setSprinkleBurstId(prev => prev + 1);
-    window.setTimeout(() => setSprinklesVisible(false), 700);
+    setGlowVisible(true);
+    window.setTimeout(() => setSprinklesVisible(false), 800);
+    window.setTimeout(() => setGlowVisible(false), 600);
   }, [size]);
 
   const handleClick = (event: React.MouseEvent<SVGElement>) => {
@@ -120,9 +125,9 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
     width: size,
     height: size,
     cursor: disabled ? 'not-allowed' : 'pointer',
-    transition: `transform 0.2s ease-in-out, filter 0.2s ease-in-out`,
+    transition: `transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease-in-out`,
     transform: isHovered && !disabled ? `scale(${hoverScale})` : 'scale(1)',
-    filter: isHovered && !disabled ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))' : 'none',
+    filter: isHovered && !disabled ? 'drop-shadow(0 6px 12px rgba(0,0,0,0.15))' : 'none',
     ...style,
   };
 
@@ -154,6 +159,20 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
       {...props}
     >
       <g className={isPopping ? 'flickon-heart-pop' : undefined}>
+        {/* Glow effect */}
+        {glowVisible && (
+          <circle
+            cx={12}
+            cy={12}
+            r={size * 0.6}
+            fill="none"
+            stroke={color}
+            strokeWidth="0.5"
+            strokeOpacity="0.4"
+            className="flickon-heart-glow"
+          />
+        )}
+
         {/* Background heart (for outline variant) */}
         {variant === 'outline' && (
           <path
@@ -195,9 +214,9 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
         {/* Sprinkles burst */}
         {sprinklesVisible && (
           <g className="flickon-heart-sprinkles" aria-hidden="true">
-            {sprinkles.map(s => (
+            {sprinkles.map((s, index) => (
               <circle
-                key={`${sprinkleBurstId}-${s.id}`}
+                key={`${sprinkleBurstId}-${s.id}-${index}`}
                 className="flickon-heart-sprinkle"
                 cx={12}
                 cy={12}
@@ -207,6 +226,8 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
                   animationDelay: `${s.delay}ms`,
                   '--tx': `${s.tx}px`,
                   '--ty': `${s.ty}px`,
+                  '--scale': s.scale,
+                  '--rotation': s.rotation,
                 } as CSSVars}
               />
             ))}
@@ -235,15 +256,20 @@ function generateSprinklesForSize(size: number, count: number): Array<{
   color: string;
   delay: number;
   r: number;
+  scale: number;
+  rotation: number;
 }> {
   const colors = [
-    '#ff4757', // red
-    '#ffa502', // orange
-    '#2ed573', // green
-    '#1e90ff', // blue
-    '#a55eea', // purple
-    '#ff6b81', // pink
-    '#f9ca24', // yellow
+    '#ff6b9d', // soft pink
+    '#4ecdc4', // teal
+    '#45b7d1', // sky blue
+    '#96ceb4', // mint green
+    '#feca57', // warm yellow
+    '#ff9ff3', // light purple
+    '#54a0ff', // bright blue
+    '#5f27cd', // deep purple
+    '#00d2d3', // cyan
+    '#ff9f43', // coral
   ] as const;
 
   const result: Array<{
@@ -253,12 +279,14 @@ function generateSprinklesForSize(size: number, count: number): Array<{
     color: string;
     delay: number;
     r: number;
+    scale: number;
+    rotation: number;
   }> = [];
 
-  const baseDistance = size * 0.35;
+  const baseDistance = size * 0.4;
   for (let i = 0; i < count; i += 1) {
     const angle = randomBetween(0, Math.PI * 2);
-    const distance = baseDistance * randomBetween(0.6, 1.1);
+    const distance = baseDistance * randomBetween(0.7, 1.3);
     const tx = Math.cos(angle) * distance;
     const ty = Math.sin(angle) * distance;
     result.push({
@@ -266,8 +294,10 @@ function generateSprinklesForSize(size: number, count: number): Array<{
       tx,
       ty,
       color: pick(colors),
-      delay: Math.floor(randomBetween(0, 80)),
-      r: randomBetween(Math.max(1, size * 0.02), Math.max(1.5, size * 0.04)),
+      delay: Math.floor(randomBetween(0, 120)),
+      r: randomBetween(Math.max(1.2, size * 0.025), Math.max(2, size * 0.045)),
+      scale: randomBetween(0.8, 1.4),
+      rotation: randomBetween(0, 360),
     });
   }
 
