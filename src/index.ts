@@ -2,8 +2,9 @@
 export { AnimatedIcon } from '@/components/AnimatedIcon';
 export type { AnimatedIconProps } from '@/components/AnimatedIcon';
 
-// Icon components
-export * from '@/icons';
+// Heart Icon component
+export { HeartIcon } from '@/icons';
+export type { HeartIconProps, HeartVariant } from '@/types';
 
 // Types
 export type * from '@/types';

@@ -1,6 +1,6 @@
 {
   "name": "flickon",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Flickon - A modern, scalable animated icons library for React with smooth animations and offline support",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",

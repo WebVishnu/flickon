@@ -100,6 +100,8 @@ export interface IconLibraryConfig {
   enableOfflineMode?: boolean;
 }
 
+export type HeartVariant = 'outline' | 'solid' | 'filled';
+
 export interface IconComponentProps extends IconProps {
   /** Name of the icon */
   name: string;
@@ -109,4 +111,17 @@ export interface IconComponentProps extends IconProps {
   viewBox?: string;
   /** Whether to use offline data */
   useOfflineData?: boolean;
+}
+
+export interface HeartIconProps extends Omit<IconComponentProps, 'name'> {
+  /** Heart variant */
+  variant?: HeartVariant;
+  /** Whether the heart is liked/filled */
+  liked?: boolean;
+  /** Callback when heart is clicked */
+  onLike?: (liked: boolean) => void;
+  /** Scale factor on hover */
+  hoverScale?: number;
+  /** Animation duration for fill animation */
+  fillDuration?: number;
 }
